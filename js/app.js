@@ -18,6 +18,17 @@ Enemy.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
     this.x = this.x + this.speed*dt;
+    if (this.x >= 505) {
+      this.x = 0;
+      this.y = Math.ceil(3*Math.random())*83;
+    }
+    this.collision(player);
+};
+
+Enemy.prototype.collision = function(player) {
+  if (player.row*83 == this.y && player.col*101 == this.x) {
+    endGame(0);
+  };
 };
 
 // Draw the enemy on the screen, required method for game
@@ -40,6 +51,11 @@ Player.prototype.update = function(dt) {
     // all computers.
 };
 
+Player.prototype.respawn = function() {
+  this.col = Math.round(Math.random()*5);
+  this.row = 5;
+}
+
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.col * 101, this.row * 83 - 12);
 };
@@ -61,9 +77,11 @@ Player.prototype.handleInput = function(keyInput) {
   };
 };
 
+//game helper methods
+
 var createEnemy = function (DIFFICULTY) {
   var random = Math.random();
-  return new Enemy(Math.ceil(3*random), Math.ceil(random*DIFFICULTY)*200);
+  return new Enemy(Math.ceil(3*random), (random*DIFFICULTY + 1)*75);
 }
 
 var createPlayer = function() {
@@ -71,15 +89,23 @@ var createPlayer = function() {
   return new Player(5, Math.round(random*5));
 }
 
+var endGame = function(victory) {
+  if (victory) score += 1;
+  else life -= 1;
+  player.respawn();
+}
+
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 var DIFFICULTY = 1;
-allEnemies = [];
-player = createPlayer();
+var allEnemies = [];
+var player = createPlayer();
+var score = 0;
+var life = 5;
 
-for (i = 0; i < 3*DIFFICULTY; i++) {
+for (i = 0; i < 2*DIFFICULTY; i++) {
   allEnemies.push(createEnemy(DIFFICULTY));
 }
 
