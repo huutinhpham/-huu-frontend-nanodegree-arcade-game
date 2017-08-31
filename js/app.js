@@ -5,6 +5,8 @@ var Enemy = function(row, speed) {
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
+    this.col =0;
+    this.row = row;
     this.x = 0;
     this.y = row * 83;
     this.speed = speed;
@@ -22,11 +24,13 @@ Enemy.prototype.update = function(dt) {
       this.x = 0;
       this.y = Math.ceil(3*Math.random())*83;
     }
+    this.row = Math.floor(this.y/83);
+    this.col = Math.floor(this.x/101);
     this.collision(player);
 };
 
 Enemy.prototype.collision = function(player) {
-  if (player.row*83 == this.y && player.col*101 == this.x) {
+  if (player.row == this.row && player.col == this.col) {
     endGame(0);
   };
 };
@@ -92,14 +96,14 @@ var createPlayer = function() {
 var endGame = function(victory) {
   if (victory) score += 1;
   else life -= 1;
-  player.respawn();
+  window.setTimeout(player.respawn(), 3000);
 }
 
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var DIFFICULTY = 1;
+var DIFFICULTY = 4;
 var allEnemies = [];
 var player = createPlayer();
 var score = 0;
