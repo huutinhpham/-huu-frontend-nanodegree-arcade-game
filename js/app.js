@@ -54,10 +54,10 @@ Player.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
 };
-
 Player.prototype.respawn = function() {
   this.col = Math.round(Math.random()*5);
   this.row = 5;
+  this.render();
 }
 
 Player.prototype.render = function() {
@@ -74,6 +74,7 @@ Player.prototype.handleInput = function(keyInput) {
       break;
     case 'up':
       if (this.row > 0) this.row -= 1;
+      if(this.row == 0) endGame(1);
       break;
     case 'down':
       if (this.row < 5) this.row += 1;
@@ -81,37 +82,85 @@ Player.prototype.handleInput = function(keyInput) {
   };
 };
 
+//statistic class
+var stats = function() {
+  this.life = 5;
+  this.score = 0;
+  this.level = 1;
+  this.highScore = 0;
+};
+
+stats.prototype.render = function() {
+  ctx.font = "15pt Arial";
+  ctx.fillStyle = "white";
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 4;
+
+  ctx.strokeText("Life: "+ this.life, 5, 101);
+  ctx.fillText("Life: " + this.life, 5, 101);
+
+  ctx.strokeText("Score: " + this.score, 210, 101);
+  ctx.fillText("Score: " + this.score, 210, 101);
+
+  ctx.strokeText("Level: " + this.level, 420, 101);
+  ctx.fillText("Level: " + this.level, 420, 101);
+
+  ctx.strokeText("High Score: " + this.highScore, 5, 505);
+  ctx.fillText("High Score: " + this.highScore, 5, 505);
+};
+
+stats.prototype.update = function(victory) {
+  if (victory) {
+    this.score++;
+  } else {
+    this.life--;
+  };
+  if (this.score > this.highScore) {
+    this.highScore = this.score;
+  };
+  if (this.score >= 10*this.level) {
+    this.level++;
+    this.life = 5;
+    createEnemy(DIFFICULTY);
+  }
+  if (this.life <= 0) {
+    this.level = 1;
+    this.life = 5;
+  };
+};
+
 //game helper methods
 
-var createEnemy = function (DIFFICULTY) {
+var createEnemy = function(DIFFICULTY) {
   var random = Math.random();
-  return new Enemy(Math.ceil(3*random), (random*DIFFICULTY + 1)*75);
-}
+  for (i = 0; i < 2*DIFFICULTY; i++) {
+    allEnemies.push( new Enemy(Math.ceil(3*random), (random*DIFFICULTY + 1)*100));
+  };
+};
 
 var createPlayer = function() {
   var random = Math.random();
   return new Player(5, Math.round(random*5));
-}
+};
+
+var createStats = function() {
+  return new stats();
+};
 
 var endGame = function(victory) {
-  if (victory) score += 1;
-  else life -= 1;
-  window.setTimeout(player.respawn(), 3000);
-}
+  stats.update(victory);
+  player.respawn();
+};
 
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var DIFFICULTY = 4;
 var allEnemies = [];
 var player = createPlayer();
-var score = 0;
-var life = 5;
-
-for (i = 0; i < 2*DIFFICULTY; i++) {
-  allEnemies.push(createEnemy(DIFFICULTY));
-}
+var stats = createStats();
+DIFFICULTY = stats.level;
+createEnemy(DIFFICULTY);
 
 
 // This listens for key presses and sends the keys to your
