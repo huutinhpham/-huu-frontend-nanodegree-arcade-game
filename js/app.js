@@ -124,6 +124,7 @@ stats.prototype.update = function(victory) {
     createEnemy(DIFFICULTY);
   }
   if (this.life <= 0) {
+    this.score = 0;
     this.level = 1;
     this.life = 5;
   };
